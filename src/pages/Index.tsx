@@ -6,103 +6,126 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 
-const mods = [
+const soaps = [
   {
     id: 1,
-    title: "Advanced Weapons Pack",
-    description: "Расширенный арсенал футуристического оружия для выживания в постапокалипсисе",
-    image: "/img/6e625785-cc1f-49d2-9ee4-fad543bcfd3c.jpg",
-    category: "Оружие",
-    downloads: "15.2K",
-    rating: 4.8,
-    tags: ["Оружие", "PvP", "Выживание"]
+    name: "Лавандовое мыло",
+    description: "Успокаивающее мыло с натуральным маслом лаванды и сушеными цветами",
+    image: "/img/f8849d19-9e22-4a1d-94b1-d3c74ba1ef39.jpg",
+    price: 450,
+    weight: "100г",
+    ingredients: ["Масло лаванды", "Сушеная лаванда", "Оливковое масло", "Кокосовое масло"],
+    category: "Расслабляющее",
+    inStock: true
   },
   {
     id: 2,
-    title: "Tech Base Builder",
-    description: "Технологичные блоки и структуры для строительства продвинутых баз",
-    image: "/img/7c7f1db1-901b-4f53-b9c9-9192fa31c5bc.jpg",
-    category: "Строительство",
-    downloads: "8.7K",
-    rating: 4.6,
-    tags: ["Строительство", "Техника", "База"]
+    name: "Мыло с медом и овсянкой",
+    description: "Питательное мыло для чувствительной кожи с натуральным медом",
+    image: "/img/f2d2daf8-6acf-4952-b307-83878f41af7e.jpg",
+    price: 380,
+    weight: "100г",
+    ingredients: ["Натуральный мед", "Овсяные хлопья", "Миндальное масло", "Масло ши"],
+    category: "Питательное",
+    inStock: true
   },
   {
     id: 3,
-    title: "Enhanced UI Pack",
-    description: "Улучшенный интерфейс с киберпанк элементами и продвинутой HUD системой",
-    image: "/img/3c646c8b-f232-4473-81de-0c237f96bf23.jpg",
-    category: "Интерфейс",
-    downloads: "22.1K",
-    rating: 4.9,
-    tags: ["UI", "HUD", "Киберпанк"]
+    name: "Цитрусовый микс",
+    description: "Бодрящее мыло с эфирными маслами апельсина и лимона",
+    image: "/img/289c55b5-ac09-4f9f-af76-c13550db3bd5.jpg",
+    price: 420,
+    weight: "100г",
+    ingredients: ["Масло апельсина", "Масло лимона", "Цедра лимона", "Касторовое масло"],
+    category: "Бодрящее",
+    inStock: true
   }
 ];
 
 export default function Index() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [cart, setCart] = useState<{id: number, quantity: number}[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Все');
 
-  const filteredMods = mods.filter(mod => 
-    mod.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (selectedCategory === 'Все' || mod.category === selectedCategory)
+  const addToCart = (soapId: number) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === soapId);
+      if (existing) {
+        return prev.map(item => 
+          item.id === soapId 
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { id: soapId, quantity: 1 }];
+    });
+  };
+
+  const getCartItemsCount = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const filteredSoaps = soaps.filter(soap => 
+    selectedCategory === 'Все' || soap.category === selectedCategory
   );
 
-  const categories = ['Все', ...Array.from(new Set(mods.map(mod => mod.category)))];
+  const categories = ['Все', ...Array.from(new Set(soaps.map(soap => soap.category)))];
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+      <header className="border-b border-border bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Icon name="Cpu" className="h-8 w-8 text-primary" />
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Icon name="Flower" className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">MOD DATABASE</h1>
-                <p className="text-sm text-muted-foreground">7 Days to Die - База знаний модов</p>
+                <h1 className="text-2xl font-bold text-foreground">Мыльная мастерская</h1>
+                <p className="text-sm text-muted-foreground">Натуральное мыло ручной работы</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
-                <Icon name="Github" className="h-4 w-4 mr-2" />
-                GitHub
+              <Button variant="outline" size="sm" className="relative">
+                <Icon name="ShoppingCart" className="h-4 w-4 mr-2" />
+                Корзина
+                {getCartItemsCount() > 0 && (
+                  <Badge className="absolute -top-2 -right-2 px-2 py-1 text-xs bg-primary text-primary-foreground">
+                    {getCartItemsCount()}
+                  </Badge>
+                )}
               </Button>
               <Button variant="outline" size="sm">
-                <Icon name="Settings" className="h-4 w-4 mr-2" />
-                Настройки
+                <Icon name="Phone" className="h-4 w-4 mr-2" />
+                Контакты
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Библиотека модов для выживания
+      {/* Hero Section */}
+      <section className="py-16 bg-gradient-to-br from-secondary/20 to-accent/10">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-5xl font-bold mb-6 text-foreground">
+            Натуральное мыло
+            <span className="block text-primary">ручной работы</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Улучши свой игровой опыт с продвинутыми модами для 7 Days to Die
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            Создаем уникальное мыло из натуральных ингредиентов без химических добавок
           </p>
+          <Button size="lg" className="text-lg px-8 py-6">
+            <Icon name="Sparkles" className="h-5 w-5 mr-2" />
+            Посмотреть коллекцию
+          </Button>
         </div>
+      </section>
 
-        {/* Search and Filter */}
-        <div className="mb-8 space-y-4">
-          <div className="relative max-w-md mx-auto">
-            <Icon name="Search" className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Поиск модов..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-12">
+        {/* Category Filter */}
+        <div className="mb-8">
+          <h3 className="text-2xl font-semibold mb-4 text-center">Наша коллекция</h3>
           <div className="flex justify-center">
             <div className="flex flex-wrap gap-2">
               {categories.map(category => (
@@ -120,126 +143,150 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="mods" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
-            <TabsTrigger value="mods" className="flex items-center space-x-2">
-              <Icon name="Package" className="h-4 w-4" />
-              <span>Моды</span>
-            </TabsTrigger>
-            <TabsTrigger value="downloads" className="flex items-center space-x-2">
-              <Icon name="Download" className="h-4 w-4" />
-              <span>Скачать</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="mods">
-            {/* Mods Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredMods.map(mod => (
-                <Card key={mod.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 bg-card border-border">
-                  <div className="relative overflow-hidden rounded-t-lg">
-                    <img
-                      src={mod.image}
-                      alt={mod.title}
-                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Badge variant="secondary" className="bg-primary/20 text-primary">
-                        {mod.category}
-                      </Badge>
-                    </div>
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredSoaps.map(soap => (
+            <Card key={soap.id} className="group hover:shadow-xl transition-all duration-300 hover:scale-105 bg-card border-border overflow-hidden">
+              <div className="relative overflow-hidden">
+                <img
+                  src={soap.image}
+                  alt={soap.name}
+                  className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute top-3 left-3">
+                  <Badge variant="secondary" className="bg-primary/90 text-primary-foreground">
+                    {soap.category}
+                  </Badge>
+                </div>
+                {soap.inStock && (
+                  <div className="absolute top-3 right-3">
+                    <Badge variant="secondary" className="bg-accent/90 text-accent-foreground">
+                      В наличии
+                    </Badge>
                   </div>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {mod.title}
-                    </CardTitle>
-                    <CardDescription className="text-muted-foreground">
-                      {mod.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap gap-1">
-                        {mod.tags.map(tag => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-1">
-                          <Icon name="Star" className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span>{mod.rating}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Icon name="Download" className="h-4 w-4" />
-                          <span>{mod.downloads}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex space-x-2">
-                        <Button className="flex-1" size="sm">
-                          <Icon name="Download" className="h-4 w-4 mr-2" />
-                          Скачать
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Icon name="Eye" className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Icon name="Heart" className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+                )}
+              </div>
+              
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xl font-semibold text-foreground">
+                  {soap.name}
+                </CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  {soap.description}
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-primary">{soap.price}₽</span>
+                  <span className="text-sm text-muted-foreground">{soap.weight}</span>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium mb-2 text-foreground">Состав:</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {soap.ingredients.map(ingredient => (
+                      <Badge key={ingredient} variant="outline" className="text-xs">
+                        {ingredient}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <Button 
+                    className="flex-1" 
+                    onClick={() => addToCart(soap.id)}
+                    disabled={!soap.inStock}
+                  >
+                    <Icon name="ShoppingCart" className="h-4 w-4 mr-2" />
+                    В корзину
+                  </Button>
+                  <Button variant="outline" size="icon">
+                    <Icon name="Heart" className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon">
+                    <Icon name="Eye" className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-          <TabsContent value="downloads">
-            <div className="text-center py-12">
-              <div className="mb-6">
-                <Icon name="Download" className="h-16 w-16 text-primary mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">Центр загрузок</h3>
-                <p className="text-muted-foreground">Скачивайте моды быстро и безопасно</p>
+        {/* Features Section */}
+        <section className="mt-20 py-16 bg-secondary/30 rounded-3xl">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold mb-4">Почему выбирают нас</h3>
+            <p className="text-muted-foreground">Качество и забота в каждом кусочке мыла</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-8">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                <Icon name="Leaf" className="h-8 w-8 text-primary" />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                <Card className="p-6 hover:shadow-lg transition-all duration-300">
-                  <Icon name="Zap" className="h-12 w-12 text-accent mx-auto mb-4" />
-                  <h4 className="font-semibold mb-2">Быстрая загрузка</h4>
-                  <p className="text-sm text-muted-foreground">Высокоскоростные серверы для мгновенного скачивания</p>
-                </Card>
-                
-                <Card className="p-6 hover:shadow-lg transition-all duration-300">
-                  <Icon name="Shield" className="h-12 w-12 text-primary mx-auto mb-4" />
-                  <h4 className="font-semibold mb-2">Безопасность</h4>
-                  <p className="text-sm text-muted-foreground">Все файлы проверены на вирусы и совместимость</p>
-                </Card>
-                
-                <Card className="p-6 hover:shadow-lg transition-all duration-300">
-                  <Icon name="Users" className="h-12 w-12 text-accent mx-auto mb-4" />
-                  <h4 className="font-semibold mb-2">Сообщество</h4>
-                  <p className="text-sm text-muted-foreground">Поддержка и отзывы от игрового сообщества</p>
-                </Card>
-              </div>
-              
-              <Button size="lg" className="mt-8">
-                <Icon name="Download" className="h-5 w-5 mr-2" />
-                Начать загрузку
-              </Button>
+              <h4 className="font-semibold mb-2">100% натуральные ингредиенты</h4>
+              <p className="text-sm text-muted-foreground">
+                Используем только качественные масла и натуральные добавки
+              </p>
             </div>
-          </TabsContent>
-        </Tabs>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
+                <Icon name="Heart" className="h-8 w-8 text-accent" />
+              </div>
+              <h4 className="font-semibold mb-2">Ручная работа</h4>
+              <p className="text-sm text-muted-foreground">
+                Каждое мыло создается вручную с любовью и вниманием к деталям
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                <Icon name="Truck" className="h-8 w-8 text-primary" />
+              </div>
+              <h4 className="font-semibold mb-2">Быстрая доставка</h4>
+              <p className="text-sm text-muted-foreground">
+                Бережная упаковка и доставка по всей России
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
-      <footer className="mt-16 border-t border-border bg-card/50">
+      <footer className="mt-16 border-t border-border bg-secondary/20">
         <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-muted-foreground">
-            <p>&copy; 2024 7DTD Mod Database. Создано для сообщества выживших.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h4 className="font-semibold mb-4">Мыльная мастерская</h4>
+              <p className="text-sm text-muted-foreground">
+                Создаем натуральное мыло ручной работы с 2019 года
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Контакты</h4>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>📞 +7 (999) 123-45-67</p>
+                <p>📧 info@soap-workshop.ru</p>
+                <p>📍 Москва, ул. Мастерская, 15</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Мы в соцсетях</h4>
+              <div className="flex space-x-4">
+                <Button variant="outline" size="icon">
+                  <Icon name="Instagram" className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon">
+                  <Icon name="MessageCircle" className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
+            <p>&copy; 2024 Мыльная мастерская. Сделано с ❤️ для красоты и здоровья</p>
           </div>
         </div>
       </footer>
